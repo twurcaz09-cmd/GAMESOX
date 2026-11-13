@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d1c">
+<title>GAMESOX</title>
+<style>
+:root{--bg:#080d1c;--panel:#111a30;--panel2:#17233e;--text:#f4f7ff;--muted:#a9b6d2;--cyan:#43e6e2;--pink:#ff4fa3;--yellow:#ffe36e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#182c52 0,#080d1c 42%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{padding:26px 16px 18px;text-align:center;border-bottom:1px solid #263858;background:#080d1ccc}
+.logo{font-size:clamp(28px,7vw,48px);font-weight:1000;letter-spacing:2px;color:#000;text-shadow:none}.sub{color:var(--muted);margin-top:4px}
+main{max-width:1050px;margin:auto;padding:18px 14px 50px}
+.tabs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin:12px 0 20px}
+button{border:0;border-radius:12px;padding:12px 17px;font-weight:800;font-size:15px;background:var(--panel2);color:var(--text);cursor:pointer}
+button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}.tabs button.active{background:var(--cyan);color:#071321}
+.panel{background:linear-gradient(145deg,#121d35,#0d1528);border:1px solid #2a3b5c;border-radius:20px;padding:18px;box-shadow:0 15px 45px #0005}
+h2{margin:0 0 8px;font-size:25px}.hint{color:var(--muted);margin:0 0 14px;font-size:14px}
+.game{display:none}.game.active{display:block}.center{text-align:center}
+#pac{display:block;width:min(100%,440px);height:auto;margin:12px auto;background:#030817;border:3px solid #244b8b;border-radius:12px;touch-action:manipulation}
+.controls{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center;margin:10px auto}
+.controls button{padding:12px 0;font-size:20px}.controls .blank{visibility:hidden}
+.stats{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;color:var(--yellow);font-weight:800;margin:8px}
+#chessboard{display:grid;grid-template-columns:repeat(8,1fr);width:min(92vw,480px);aspect-ratio:1;margin:15px auto;border:5px solid #536783;border-radius:8px;overflow:hidden}
+.square{border-radius:0;padding:0;aspect-ratio:1;display:grid;place-items:center;font-size:clamp(24px,7vw,48px);position:relative}
+.light{background:#e7dfc9;color:#1b2434}.dark{background:#66816e;color:#101827}.square.selected{outline:4px solid #ffe36e;outline-offset:-4px}.square.target:after{content:"";width:22%;height:22%;border-radius:50%;background:#ffe36eaa;position:absolute}
+.chessbar{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+#ttt{display:grid;grid-template-columns:repeat(3, min(25vw,105px));gap:8px;justify-content:center;margin:18px auto}
+.cell{aspect-ratio:1;background:#1b2a49;border:2px solid #354c74;font-size:clamp(34px,10vw,55px);color:var(--cyan);padding:0}
+.status{min-height:28px;text-align:center;color:var(--yellow);font-weight:800;margin:10px}
+footer{text-align:center;color:#7f91b2;font-size:12px;margin-top:20px}
+@media(min-width:700px){main{padding-top:26px}.panel{padding:24px}}
+</style>
+</head>
+<body>
+<header><div class="logo">GAMESOX</div><div class="sub">Wybierz grę i baw się dobrze!</div></header>
+<main>
+<nav class="tabs" aria-label="Wybór gry">
+<button class="active" data-game="pacman">🟡 PAC-MAN</button><button data-game="chess">♟️ SZACHY</button><button data-game="ttt">❌ KÓŁKO I KRZYŻYK</button>
+</nav>
+<section id="pacman" class="game active panel">
+<h2>🟡 PAC-MAN</h2><p class="hint">Zbieraj wszystkie kropki i unikaj duchów. Sterowanie: strzałki lub WASD.</p>
+<div class="stats"><span>Punkty: <b id="score">0</b></span><span>Pozostało: <b id="left">0</b></span></div>
+<canvas id="pac" width="420" height="462" aria-label="Gra Pac-Man"></canvas>
+<div class="controls"><button class="blank"> </button><button data-dir="up">⬆️</button><button class="blank"> </button><button data-dir="left">⬅️</button><button data-dir="down">⬇️</button><button data-dir="right">➡️</button></div>
+<div class="center"><button id="pacRestart">🔄 Nowa gra</button></div><div class="status" id="pacStatus">Powodzenia!</div>
+</section>
+<section id="chess" class="game panel">
+<h2>♟️ SZACHY</h2><p class="hint">Gra dla dwóch osób na jednym urządzeniu. Kliknij figurę, a potem pole docelowe. Król nie może wejść pod szach.</p>
+<div class="status" id="chessStatus">Ruch białych</div><div id="chessboard" aria-label="Szachownica"></div>
+<div class="chessbar"><button id="chessReset">🔄 Nowa partia</button><button id="flipBoard">↕️ Obróć planszę</button></div>
+</section>
+<section id="ttt" class="game panel">
+<h2>❌ KÓŁKO I KRZYŻYK</h2><p class="hint">Gra dla dwóch osób. Kto pierwszy ułoży trzy znaki w rzędzie, wygrywa!</p>
+<div class="status" id="tttStatus">Ruch: X</div><div id="ttt"></div>
+<div class="center"><button id="tttReset">🔄 Nowa gra</button></div>
+</section>
+<footer>GAMESOX • Działa w przeglądarce telefonu i komputera</footer>
+</main>
+<script>
+const tabs=document.querySelectorAll('.tabs button');
+tabs.forEach(b=>b.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.game').forEach(g=>g.classList.remove('active'));document.getElementById(b.dataset.game).classList.add('active')}));
+/* PAC-MAN */
+const map=[
+"###################",
+"#........#........#",
+"#.##.###.#.###.##.#",
+"#.................#",
+"#.##.#.#####.#.##.#",
+"#....#...#...#....#",
+"####.###.#.###.####",
+"   #.#.......#.#   ",
+"####.#.## ##.#.####",
+"     .#.....#.     ",
+"####.#.#####.#.####",
+"   #.#.......#.#   ",
+"####.#.#####.#.####",
+"#........#........#",
+"#.##.###.#.###.##.#",
+"#...#.........#...#",
+"##..#.##...##.#..##",
+"#.................#",
+"###################"
+];
+const cv=document.getElementById('pac'),ctx=cv.getContext('2d'),tile=22,cols=19,rows=21;
+let dots,px,py,dir,nextDir,ghosts,score,playing,pacTimer;
+function resetPac(){dots=map.map(r=>r.split('').map(c=>c==='.'?1:0));px=9;py=15;dir={x:0,y:0};nextDir={x:0,y:0};ghosts=[{x:8,y:9,dx:1,dy:0,c:'#ff5470'},{x:10,y:9,dx:-1,dy:0,c:'#48d9ff'},{x:9,y:8,dx:0,dy:1,c:'#ff9de1'}];score=0;playing=true;document.getElementById('pacStatus').textContent='Powodzenia!';updateStats();drawPac();clearInterval(pacTimer);pacTimer=setInterval(stepPac,155)}
+function wall(x,y){return y<0||y>=map.length||x<0||x>=map[y].length||map[y][x]==='#'}
+function updateStats(){document.getElementById('score').textContent=score;document.getElementById('left').textContent=dots.flat().reduce((a,b)=>a+b,0)}
+function drawPac(){ctx.clearRect(0,0,cv.width,cv.height);for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){let ch=map[y]?.[x]||' ';if(ch==='#'){ctx.fillStyle='#123b83';ctx.fillRect(x*tile,y*tile,tile,tile);ctx.strokeStyle='#2868c9';ctx.strokeRect(x*tile+2,y*tile+2,tile-4,tile-4)}else if(dots[y][x]){ctx.fillStyle='#ffe8a3';ctx.beginPath();ctx.arc(x*tile+11,y*tile+11,2.5,0,Math.PI*2);ctx.fill()}}
+ctx.fillStyle='#ffdf27';ctx.beginPath();ctx.arc(px*tile+11,py*tile+11,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='#15203a';ctx.beginPath();ctx.arc(px*tile+14,py*tile+7,2,0,Math.PI*2);ctx.fill();
+ghosts.forEach(g=>{ctx.fillStyle=g.c;ctx.beginPath();ctx.arc(g.x*tile+11,g.y*tile+10,9,Math.PI,0);ctx.lineTo(g.x*tile+20,g.y*tile+19);ctx.lineTo(g.x*tile+15,g.y*tile+16);ctx.lineTo(g.x*tile+11,g.y*tile+19);ctx.lineTo(g.x*tile+6,g.y*tile+16);ctx.lineTo(g.x*tile+2,g.y*tile+19);ctx.closePath();ctx.fill();ctx.fillStyle='white';ctx.fillRect(g.x*tile+6,g.y*tile+7,4,5);ctx.fillRect(g.x*tile+13,g.y*tile+7,4,5);ctx.fillStyle='#14213d';ctx.fillRect(g.x*tile+8,g.y*tile+9,2,3);ctx.fillRect(g.x*tile+15,g.y*tile+9,2,3)})}
+function stepPac(){if(!playing)return;if(!wall(px+nextDir.x,py+nextDir.y)&& (nextDir.x||nextDir.y))dir=nextDir;if(!wall(px+dir.x,py+dir.y)){px+=dir.x;py+=dir.y}if(dots[py]?.[px]){dots[py][px]=0;score+=10;updateStats()}ghosts.forEach(g=>{if(Math.random()<.45||wall(g.x+g.dx,g.y+g.dy)){let opts=[[1,0],[-1,0],[0,1],[0,-1]].filter(d=>!wall(g.x+d[0],g.y+d[1]));if(opts.length){let d=opts[Math.floor(Math.random()*opts.length)];g.dx=d[0];g.dy=d[1]}}g.x+=g.dx;g.y+=g.dy;if(g.x===px&&g.y===py){playing=false;document.getElementById('pacStatus').textContent='Koniec gry! Duch Cię złapał. Kliknij Nowa gra.';clearInterval(pacTimer)}});if(dots.flat().every(v=>!v)){playing=false;document.getElementById('pacStatus').textContent='WYGRANA! Zebrano wszystkie kropki!';clearInterval(pacTimer)}drawPac()}
+function setDir(d){nextDir=({up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}})[d]}
+document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>setDir(b.dataset.dir)));document.addEventListener('keydown',e=>{let d={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'}[e.key];if(d){e.preventDefault();setDir(d)}});
+document.getElementById('pacRestart').onclick=resetPac;
+/* CHESS - legal movement with check validation */
+const pieces={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+let board,turn,selected,flipped,ended;
+function startChess(){board=[...'rnbqkbnr'].concat([]);board=Array.from({length:8},(_,y)=>Array.from({length:8},(_,x)=>y===0?'rnbqkbnr'[x]:y===1?'p':y===6?'P':y===7?'RNBQKBNR'[x]:''));turn='w';selected=null;ended=false;renderChess();statusChess()}
+function side(p){return p?(p===p.toUpperCase()?'w':'b'):''}
+function inside(x,y){return x>=0&&x<8&&y>=0&&y<8}
+function attacked(b,x,y,by){for(let yy=0;yy<8;yy++)for(let xx=0;xx<8;xx++){let p=b[yy][xx];if(side(p)!==by)continue;let dx=x-xx,dy=y-yy,t=p.toLowerCase();if(t==='p'&&Math.abs(dx)===1&&dy===(by==='w'?-1:1))return true;if(t==='n'&&[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]].some(a=>a[0]===dx&&a[1]===dy))return true;if(t==='k'&&Math.max(Math.abs(dx),Math.abs(dy))===1)return true;if(['q','r','b'].includes(t)){let line=(t==='q'||t==='r'&&(dx===0||dy===0)||t==='b'&&Math.abs(dx)===Math.abs(dy));if(!line||(!dx&&!dy))continue;let sx=Math.sign(dx),sy=Math.sign(dy),cx=xx+sx,cy=yy+sy,clear=true;while(cx!==x||cy!==y){if(b[cy][cx]){clear=false;break}cx+=sx;cy+=sy}if(clear)return true}}return false}
+function inCheck(b,s){let k=s==='w'?'K':'k',kx=-1,ky=-1;for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(b[y][x]===k){kx=x;ky=y}return kx<0||attacked(b,kx,ky,s==='w'?'b':'w')}
+function pseudo(b,x,y,tx,ty){let p=b[y][x],t=p.toLowerCase(),s=side(p),dx=tx-x,dy=ty-y,target=b[ty][tx];if(!p||side(target)===s)return false;if(t==='p'){let step=s==='w'?-1:1,start=s==='w'?6:1;if(dx===0&&dy===step&&!target)return true;if(dx===0&&dy===2*step&&y===start&&!target&&!b[y+step][x])return true;if(Math.abs(dx)===1&&dy===step&&target)return true;return false}if(t==='n')return Math.abs(dx)*Math.abs(dy)===2;if(t==='k')return Math.max(Math.abs(dx),Math.abs(dy))===1;if(t==='r'&&dx!==0&&dy!==0||t==='b'&&Math.abs(dx)!==Math.abs(dy)||t==='q'&&dx!==0&&dy!==0&&Math.abs(dx)!==Math.abs(dy))return false;let sx=Math.sign(dx),sy=Math.sign(dy),cx=x+sx,cy=y+sy;while(cx!==tx||cy!==ty){if(b[cy][cx])return false;cx+=sx;cy+=sy}return true}
+function legal(b,x,y,tx,ty){if(!inside(tx,ty)||!pseudo(b,x,y,tx,ty))return false;let copy=b.map(r=>r.slice()),p=copy[y][x];copy[ty][tx]=p;copy[y][x]='';if(p.toLowerCase()==='p'&&(ty===0||ty===7))copy[ty][tx]=side(p)==='w'?'Q':'q';return !inCheck(copy,side(p))}
+function renderChess(){let el=document.getElementById('chessboard');el.innerHTML='';for(let i=0;i<64;i++){let y=flipped?7-Math.floor(i/8):Math.floor(i/8),x=flipped?7-i%8:i%8,s=document.createElement('button');s.className='square '+((x+y)%2?'dark':'light');s.textContent=pieces[board[y][x]]||'';if(selected&&selected.x===x&&selected.y===y)s.classList.add('selected');if(selected&&legal(board,selected.x,selected.y,x,y))s.classList.add('target');s.onclick=()=>clickSquare(x,y);el.appendChild(s)}}
+function statusChess(){document.getElementById('chessStatus').textContent=ended?'Koniec partii':(turn==='w'?'Ruch białych':'Ruch czarnych')+(inCheck(board,turn)?' — SZACH!':'')}
+function clickSquare(x,y){if(ended)return;let p=board[y][x];if(selected&&legal(board,selected.x,selected.y,x,y)){let moving=board[selected.y][selected.x];board[y][x]=moving;board[selected.y][selected.x]='';if(moving.toLowerCase()==='p'&&(y===0||y===7))board[y][x]=side(moving)==='w'?'Q':'q';turn=turn==='w'?'b':'w';selected=null;if(inCheck(board,turn)){let has=false;for(let yy=0;yy<8;yy++)for(let xx=0;xx<8;xx++)if(side(board[yy][xx])===turn)for(let ty=0;ty<8;ty++)for(let tx=0;tx<8;tx++)if(legal(board,xx,yy,tx,ty))has=true;if(!has){ended=true;document.getElementById('chessStatus').textContent='MAT! Wygrywają '+(turn==='w'?'czarne':'białe')+'!';renderChess();return}}renderChess();statusChess();return}if(p&&side(p)===turn){selected={x,y}}else selected=null;renderChess()}
+document.getElementById('chessReset').onclick=startChess;document.getElementById('flipBoard').onclick=()=>{flipped=!flipped;renderChess()};
+/* TIC TAC TOE */
+let cells,player,tttDone;function startTtt(){cells=Array(9).fill('');player='X';tttDone=false;document.getElementById('tttStatus').textContent='Ruch: X';renderTtt()}
+function renderTtt(){let el=document.getElementById('ttt');el.innerHTML='';cells.forEach((v,i)=>{let b=document.createElement('button');b.className='cell';b.textContent=v;b.onclick=()=>{if(v||tttDone)return;cells[i]=player;let wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];let win=wins.some(a=>a.every(n=>cells[n]===player));if(win){tttDone=true;document.getElementById('tttStatus').textContent='Wygrywa '+player+'!'}else if(cells.every(Boolean)){tttDone=true;document.getElementById('tttStatus').textContent='Remis!'}else{player=player==='X'?'O':'X';document.getElementById('tttStatus').textContent='Ruch: '+player}renderTtt()};el.appendChild(b)})}
+document.getElementById('tttReset').onclick=startTtt;
+resetPac();startChess();startTtt();
+</script>
+</body></html>
